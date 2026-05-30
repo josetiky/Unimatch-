@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniMatch+ | Versión Completa con Becas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* --- DESIGN SYSTEM --- */
+        :root {
+            --primary: #004aad;
+            --primary-hover: #003380;
+            --bg-gray: #f5f7fa;
+            --white: #ffffff;
+            --text-dark: #1a1a1a;
+            --text-gray: #5f6368;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.05);
+            --success: #2e7d32;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+        body { background-color: var(--bg-gray); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* --- UTILIDADES --- */
+        .screen { display: none; height: 100%; width: 100%; overflow-y: auto; padding: 20px; }
+        .screen.active { display: block; }
+        .hidden { display: none !important; }
+        
+        .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 500; transition: 0.2s; font-size: 14px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: #f0f7ff; }
+
+        /* --- LOGIN SCREEN --- */
+        .login-wrapper { height: 100%; background: linear-gradient(135deg, var(--primary) 0%, #00204a 100%); display: flex; align-items: center; justify-content: center; }
+        .login-card { background: white; width: 400px; padding: 40px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 13px; margin-bottom: 8px; color: var(--text-gray); font-weight: 500; }
+        .input-field { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; transition: 0.2s; }
+        .input-field:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.1); }
+
+        /* --- HEADER --- */
+        header {
+            background-color: var(--primary); color: var(--white); height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .brand { font-size: 20px; font-weight: 900; display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px; }
+        .nav-menu { display: flex; gap: 30px; list-style: none; }
+        .nav-menu a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 15px; font-weight: 400; cursor: pointer; padding-bottom: 4px; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .nav-menu a:hover, .nav-menu a.active { color: white; font-weight: 500; border-bottom-color: white; }
+
+        /* --- DASHBOARD --- */
+        .dashboard-container { max-width: 1200px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 60px; }
+        .welcome-text { text-align: center; margin-bottom: 50px; }
+        .welcome-text h1 { font-size: 36px; color: var(--text-dark); margin-bottom: 10px; font-weight: 800; }
+        .welcome-text p { color: var(--text-gray); font-size: 18px; font-weight: 300; }
+
+        .cards-row { display: flex; justify-content: center; gap: 30px; width: 100%; flex-wrap: wrap; }
+        .home-card {
+            background: var(--white); width: 340px; min-height: 280px; border-radius: var(--border-radius); box-shadow: var(--shadow);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px;
+            cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; border: 1px solid transparent;
+        }
+        .home-card:hover { transform: translateY(-8px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: #e0e0e0; }
+
+        .icon-container { margin-bottom: 25px; font-size: 40px; color: var(--primary); }
+        .icon-circle-fill { background-color: var(--primary); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .home-card h3 { font-size: 20px; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; }
+        .home-card p { font-size: 14px; color: var(--text-gray); line-height: 1.5; padding: 0 15px; }
+
+        /* Mentor Styles */
+        .mentor-header { display: flex; align-items: center; gap: 15px; width: 100%; margin-bottom: 15px; }
+        .mentor-avatar { width: 50px; height: 50px; background: #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; }
+        .mentor-info { text-align: left; }
+        .mentor-role { font-size: 12px; background: #e3f2fd; color: var(--primary); padding: 3px 8px; border-radius: 10px; font-weight: bold; }
+
+        /* --- SELECCIÓN & TABLA --- */
+        .select-compare-container { max-width: 900px; margin: 40px auto; background: white; padding: 40px; border-radius: var(--border-radius); box-shadow: var(--shadow); }
+        .sim-item-row { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; transition: 0.2s; cursor: pointer; }
+        .sim-item-row:hover { background-color: #f9f9f9; }
+        .sim-checkbox { width: 20px; height: 20px; margin-right: 20px; accent-color: var(--primary); cursor: pointer;}
+        
+        .compare-table { width: 100%; border-collapse: separate; border-spacing: 0; background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); margin-top: 20px; }
+        .compare-table th { background: var(--primary); color: white; padding: 20px; text-align: center; font-weight: 500; width: 25%; }
+        .compare-table td { padding: 15px 20px; border-bottom: 1px solid #eee; text-align: center; color: var(--text-dark); vertical-align: middle; }
+        .compare-table tr:last-child td { border-bottom: none; }
+        .rating-badge { background: #ffc107; color: #333; font-weight: bold; padding: 5px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-size: 14px; }
+        .scholarship-tag { color: var(--success); font-weight: bold; font-size: 12px; display: block; margin-top: 4px; }
+
+        /* --- SIMULACIÓN (WIZARD) --- */
+        .sim-layout { display: flex; gap: 20px; max-width: 1200px; margin: 20px auto; height: calc(100vh - 120px); }
+        .sim-sidebar { width: 240px; background: white; border-radius: 12px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+        .sim-main { flex: 1; background: white; border-radius: 12px; padding: 30px; box-shadow: var(--shadow); overflow-y: auto; }
+        .sim-right { width: 280px; background: white; border-radius: 12px; padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+
+        .step-btn { text-align: left; padding: 12px 15px; margin-bottom: 5px; background: none; border: none; width: 100%; border-radius: 6px; color: var(--text-gray); cursor: pointer; transition: 0.2s; }
+        .step-btn.active { background: #e3f2fd; color: var(--primary); font-weight: 600; }
+
+        .option-item { border: 1px solid #eee; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; transition: 0.2s; }
+        .option-item:hover { border-color: var(--primary); background: #fafbff; }
+        .opt-icon { width: 40px; height: 40px; background: #f0f0f0; border-radius: 8px; display:flex; align-items:center; justify-content:center; margin-right:15px; color:#555;}
+        .opt-content { flex: 1; display:flex; align-items:center; }
+
+    </style>
+</head>
+<body>
+
+    <div id="screen-login" class="screen active" style="padding: 0;">
+        <div class="login-wrapper">
+            <div class="login-card">
+                <div style="font-size: 40px; color: var(--primary); margin-bottom: 10px;"><i class="fas fa-book-open"></i></div>
+                <h2 style="color: var(--text-dark); margin-bottom: 5px;">UniMatch+</h2>
+                <p style="margin-bottom: 30px; color: var(--text-gray);">Planea tu futuro con números reales</p>
+                
+                <div class="input-group">
+                    <label>Correo Institucional</label>
+                    <input type="text" class="input-field" value="ximena@student.com">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" class="input-field" value="123456">
+                </div>
+                <button class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px;" onclick="doLogin()">Iniciar Sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <header id="main-header" class="hidden">
+        <div class="brand"><i class="fas fa-book-open"></i> UniMatch+</div>
+        <nav>
+            <ul class="nav-menu">
+                <li><a onclick="navTo('home')" id="nav-home" class="active">Inicio</a></li>
+                <li><a onclick="navTo('simulation')" id="nav-sim">Nueva Simulación</a></li>
+                <li><a onclick="navTo('saved')" id="nav-saved">Guardados</a></li>
+                <li><a onclick="navTo('select-compare')" id="nav-comp">Comparar</a></li>
+                <li><a onclick="navTo('asesorias')" id="nav-ase">Asesorías</a></li>
+            </ul>
+        </nav>
+        <div><i class="fas fa-user-circle" style="font-size: 28px; cursor: pointer;"></i></div>
+    </header>
+
+    <div id="screen-home" class="screen">
+        <div class="dashboard-container">
+            <div class="welcome-text">
+                <h1>Hola, Ximena</h1>
+                <p>¿Qué quieres hacer hoy?</p>
+            </div>
+            <div class="cards-row">
+                <div class="home-card" onclick="navTo('simulation')">
+                    <div class="icon-container icon-circle-fill"><i class="fas fa-plus"></i></div>
+                    <h3>Nueva Simulación</h3>
+                    <p>Calcula costos desde cero para una universidad.</p>
+                </div>
+                <div class="home-card" onclick="navTo('saved')">
+                    <div class="icon-container"><i class="fas fa-folder-open"></i></div>
+                    <h3>Mis Guardados</h3>
+                    <p>Accede a tus simulaciones previas.</p>
+                </div>
+                <div class="home-card" onclick="navTo('select-compare')">
+                    <div class="icon-container"><i class="fas fa-balance-scale"></i></div>
+                    <h3>Comparar</h3>
+                    <p>Visualiza tus opciones lado a lado.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-asesorias" class="screen">
+        <div class="dashboard-container">
+            <div class="welcome-text"><h1 style="color: var(--primary);">Mentoria</h1><p>Conecta con expertos</p></div>
+            <div class="cards-row">
+                <div class="home-card" style="align-items: flex-start; text-align: left;">
+                    <div class="mentor-header"><div class="mentor-avatar" style="background: #ffcc80;"><i class="fas fa-user-graduate"></i></div><div class="mentor-info"><h3>Ana García</h3><span class="mentor-role">Vocacional</span></div></div>
+                    <p style="padding:0; margin-bottom:20px;">Encuentra tu carrera ideal.</p><button class="btn btn-primary" style="width:100%">Agendar</button>
+                </div>
+                <div class="home-card" style="align-items: flex-start; text-align: left;">
+                    <div class="mentor-header"><div class="mentor-avatar" style="background: #81d4fa;"><i class="fas fa-chart-line"></i></div><div class="mentor-info"><h3>Roberto Mtz</h3><span class="mentor-role">Financiero</span></div></div>
+                    <p style="padding:0; margin-bottom:20px;">Becas y créditos.</p><button class="btn btn-primary" style="width:100%">Agendar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-select-compare" class="screen">
+        <div class="select-compare-container">
+            <div style="text-align: center; margin-bottom: 30px;"><h2 style="color: var(--primary);">Elige qué comparar</h2></div>
+            <div id="selection-list"></div>
+            <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; padding-top: 20px;">
+                <button class="btn btn-outline" onclick="navTo('home')">Cancelar</button>
+                <button class="btn btn-primary" onclick="goToComparisonTable()">Comparar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-compare-result" class="screen">
+        <div style="max-width: 1200px; margin: 20px auto;">
+            <button class="btn btn-outline" onclick="navTo('select-compare')" style="margin-bottom: 20px;">Volver</button>
+            <div style="background: white; border-radius: 12px; padding: 30px; box-shadow: var(--shadow);">
+                <div style="overflow-x: auto;"><table class="compare-table" id="comparison-table-body"></table></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-simulation" class="screen">
+        <div class="sim-layout">
+            <div class="sim-sidebar">
+                <h4 style="margin-bottom: 15px; color: var(--primary);">Pasos</h4>
+                <button class="step-btn active" onclick="setStep(1)" id="btn-step-1">1. Universidad</button>
+                <button class="step-btn" onclick="setStep(2)" id="btn-step-2">2. Vivienda</button>
+                <button class="step-btn" onclick="setStep(3)" id="btn-step-3">3. Transporte</button>
+                <button class="step-btn" onclick="setStep(4)" id="btn-step-4">4. Alimentación</button>
+                <button class="step-btn" onclick="setStep(5)" id="btn-step-5">5. Becas</button>
+            </div>
+
+            <div class="sim-main">
+                <div id="step-1" class="step-view">
+                    <h2 style="margin-bottom: 20px;">Elige tu Universidad</h2>
+                    <input type="text" placeholder="Buscar..." style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 20px;">
+                    <div id="uni-options-container"></div>
+                </div>
+
+                <div id="step-2" class="step-view hidden">
+                    <h2 style="margin-bottom: 20px;">Vivienda</h2>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-building"></i></div><div><strong>Residencias Campus</strong><br><small>Todo incluido</small></div></div><button class="btn btn-outline" onclick="selectSimItem('housing', 6500)">$6,500</button></div>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-door-open"></i></div><div><strong>Depa Compartido</strong><br><small>Habitación privada</small></div></div><button class="btn btn-outline" onclick="selectSimItem('housing', 3800)">$3,800</button></div>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-home"></i></div><div><strong>Cuarto en Casa</strong><br><small>Económico</small></div></div><button class="btn btn-outline" onclick="selectSimItem('housing', 2800)">$2,800</button></div>
+                </div>
+
+                <div id="step-3" class="step-view hidden">
+                    <h2 style="margin-bottom: 20px;">Transporte</h2>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-bus"></i></div><div><strong>Público</strong><br><small>Autobús / Metro</small></div></div><button class="btn btn-outline" onclick="selectSimItem('transport', 400)">$400</button></div>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-car"></i></div><div><strong>Apps</strong><br><small>Uber / Didi</small></div></div><button class="btn btn-outline" onclick="selectSimItem('transport', 2500)">$2,500</button></div>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-gas-pump"></i></div><div><strong>Auto Propio</strong><br><small>Gasolina</small></div></div><button class="btn btn-outline" onclick="selectSimItem('transport', 2200)">$2,200</button></div>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-bicycle"></i></div><div><strong>Bici / Pie</strong><br><small>Gratis</small></div></div><button class="btn btn-outline" onclick="selectSimItem('transport', 100)">$100</button></div>
+                </div>
+
+                <div id="step-4" class="step-view hidden">
+                    <h2 style="margin-bottom: 20px;">Alimentación</h2>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-utensils"></i></div><div><strong>Comedor Uni</strong><br><small>Plan mensual</small></div></div><button class="btn btn-outline" onclick="selectSimItem('food', 4500)">$4,500</button></div>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-shopping-basket"></i></div><div><strong>Supermercado</strong><br><small>Cocinar en casa</small></div></div><button class="btn btn-outline" onclick="selectSimItem('food', 2200)">$2,200</button></div>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-hamburger"></i></div><div><strong>Mixto</strong><br><small>Cocinar + Salidas</small></div></div><button class="btn btn-outline" onclick="selectSimItem('food', 3500)">$3,500</button></div>
+                </div>
+
+                 <div id="step-5" class="step-view hidden">
+                    <h2 style="margin-bottom: 20px;">Becas y Apoyos</h2>
+                    <p style="margin-bottom: 20px; color: #666;">Selecciona el porcentaje de beca o apoyo estimado.</p>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-ban"></i></div><div><strong>Sin Beca</strong><br><small>Pago completo</small></div></div><button class="btn btn-outline" onclick="selectScholarship(0)">0%</button></div>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-graduation-cap"></i></div><div><strong>Beca Académica</strong><br><small>Promedio alto</small></div></div><button class="btn btn-outline" onclick="selectScholarship(30)">30%</button></div>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-running"></i></div><div><strong>Beca Deportiva</strong><br><small>Equipo representativo</small></div></div><button class="btn btn-outline" onclick="selectScholarship(50)">50%</button></div>
+                    <div class="option-item"><div class="opt-content"><div class="opt-icon"><i class="fas fa-star"></i></div><div><strong>Excelencia</strong><br><small>Talento excepcional</small></div></div><button class="btn btn-outline" onclick="selectScholarship(90)">90%</button></div>
+                </div>
+            </div>
+
+            <div class="sim-right">
+                <h4 style="margin-bottom: 20px;">Resumen</h4>
+                <div style="flex: 1;">
+                    <p style="display:flex; justify-content:space-between; margin-bottom: 8px; font-size: 13px;"><span>Uni:</span> <strong id="sum-uni">$0</strong></p>
+                    <div id="scholarship-display" style="font-size: 11px; color: var(--success); text-align: right; margin-top: -5px; margin-bottom: 8px;"></div>
+                    <p style="display:flex; justify-content:space-between; margin-bottom: 8px; font-size: 13px;"><span>Vivienda:</span> <strong id="sum-housing">$0</strong></p>
+                    <p style="display:flex; justify-content:space-between; margin-bottom: 8px; font-size: 13px;"><span>Transporte:</span> <strong id="sum-transport">$0</strong></p>
+                    <p style="display:flex; justify-content:space-between; margin-bottom: 8px; font-size: 13px;"><span>Alimentos:</span> <strong id="sum-food">$0</strong></p>
+                    <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
+                    <div style="text-align: center;">
+                        <span style="font-size: 12px; color: #888;">Total Mensual</span>
+                        <div style="font-size: 26px; font-weight: bold; color: var(--primary);" id="sum-total">$0</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" style="width: 100%;" onclick="saveSimulation()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-saved" class="screen">
+        <div style="text-align: center; margin-top: 80px;">
+            <i class="fas fa-folder-open" style="font-size: 60px; color: #ddd;"></i>
+            <h2 style="color: var(--text-gray); margin-top: 20px;">Simulaciones Guardadas</h2>
+            <p style="margin-bottom: 20px;">Usa el botón "Comparar" para verlas.</p>
+            <button class="btn btn-outline" onclick="navTo('home')">Volver</button>
+        </div>
+    </div>
+
+    <script>
+        // DATOS
+        const universitiesDB = [
+            { id: 1, name: "UDLAP", loc: "Puebla", cost: 170000, type: "Privada", rating: 9.6 },
+            { id: 2, name: "Tec de Monterrey", loc: "MTY", cost: 185000, type: "Privada", rating: 9.8 },
+            { id: 3, name: "UNAM", loc: "CDMX", cost: 500, type: "Pública", rating: 9.7 },
+            { id: 4, name: "Anáhuac", loc: "Cancún", cost: 155000, type: "Privada", rating: 8.9 },
+            { id: 5, name: "BUAP", loc: "Puebla", cost: 3000, type: "Pública", rating: 8.5 },
+            { id: 6, name: "UPAEP", loc: "Puebla", cost: 170000, type: "Privada", rating: 8.0 },
+            { id: 7, name: "UDEM", loc: "MTY", cost: 19560, type: "Privada", rating: 8.0 },
+            { id: 8, name: "UABJO", loc: "OAX", cost: 0, type: "Pública", rating: 4.0 },
+            { id: 9, name: "IPN", loc: "CDMX", cost: 500, type: "Pública", rating: 7.0 },
+
+
+
+        ];
+
+        let savedSimulations = [
+            { id: 101, uniName: "UDLAP (Beca 40%)", monthlyUni: 17000, scholarship: 40, housing: 5800, transport: 100, food: 3500, rating: 9.6 },
+            { id: 102, uniName: "UNAM CDMX", monthlyUni: 100, scholarship: 0, housing: 6000, transport: 400, food: 2200, rating: 9.7 },
+            { id: 103, uniName: "Tec MTY", monthlyUni: 30800, scholarship: 0, housing: 8500, transport: 2500, food: 4500, rating: 9.8 }
+        ];
+
+        let currentSim = { uniName: "", baseUniCost: 0, housing: 0, transport: 0, food: 0, rating: 0, scholarship: 0 };
+        let selectedForComparison = [];
+
+        function doLogin() { document.getElementById('screen-login').classList.remove('active'); document.getElementById('main-header').classList.remove('hidden'); navTo('home'); }
+
+        function navTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + screenId).classList.add('active');
+            document.querySelectorAll('.nav-menu a').forEach(a => a.classList.remove('active'));
+            const map = {'home':'home', 'simulation':'sim', 'saved':'saved', 'select-compare':'comp', 'compare-result':'comp', 'asesorias':'ase'};
+            if(map[screenId]) document.getElementById('nav-' + map[screenId]).classList.add('active');
+            if(screenId === 'select-compare') renderSelectionList();
+            if(screenId === 'simulation') renderUniOptions();
+        }
+
+        function setStep(n) {
+            document.querySelectorAll('.step-view').forEach(s => s.classList.add('hidden'));
+            document.getElementById('step-' + n).classList.remove('hidden');
+            document.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-step-' + n).classList.add('active');
+        }
+
+        function renderUniOptions() {
+            const container = document.getElementById('uni-options-container');
+            container.innerHTML = "";
+            universitiesDB.forEach(u => {
+                const monthly = Math.round(u.cost / 6);
+                const div = document.createElement('div');
+                div.className = 'option-item';
+                div.innerHTML = `<div><strong>${u.name}</strong> <span class="rating-badge" style="font-size:10px; margin-left:5px;">★ ${u.rating}</span><br><small>${u.loc}</small></div><button class="btn btn-outline" onclick="selectUni('${u.name}', ${monthly}, ${u.rating})">Seleccionar</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        function selectUni(name, cost, rating) {
+            currentSim.uniName = name;
+            currentSim.baseUniCost = cost;
+            currentSim.rating = rating;
+            currentSim.scholarship = 0; // reset
+            updateTotal();
+            setStep(2);
+        }
+
+        function selectSimItem(cat, cost) { currentSim[cat] = cost; updateTotal(); }
+
+        function selectScholarship(percent) {
+            currentSim.scholarship = percent;
+            updateTotal();
+        }
+
+        function updateTotal() {
+            // Apply Scholarship
+            const discountedUni = currentSim.baseUniCost * (1 - (currentSim.scholarship / 100));
+            
+            document.getElementById('sum-uni').innerText = `$${discountedUni.toLocaleString()}`;
+            if(currentSim.scholarship > 0) {
+                document.getElementById('scholarship-display').innerText = `-${currentSim.scholarship}% aplicado`;
+            } else {
+                document.getElementById('scholarship-display').innerText = "";
+            }
+
+            document.getElementById('sum-housing').innerText = `$${currentSim.housing.toLocaleString()}`;
+            document.getElementById('sum-transport').innerText = `$${currentSim.transport.toLocaleString()}`;
+            document.getElementById('sum-food').innerText = `$${currentSim.food.toLocaleString()}`;
+            
+            const total = discountedUni + currentSim.housing + currentSim.transport + currentSim.food;
+            document.getElementById('sum-total').innerText = `$${total.toLocaleString()}`;
+        }
+
+        function saveSimulation() {
+            if(!currentSim.uniName) return alert("Selecciona universidad");
+            // Guardar con el costo mensual ya calculado para la tabla
+            const finalUniMonthly = currentSim.baseUniCost * (1 - (currentSim.scholarship / 100));
+            savedSimulations.push({...currentSim, monthlyUni: finalUniMonthly, id: Date.now()});
+            alert("¡Simulación guardada!");
+            navTo('select-compare');
+        }
+
+        function renderSelectionList() {
+            const container = document.getElementById('selection-list');
+            container.innerHTML = "";
+            savedSimulations.forEach(sim => {
+                const total = sim.monthlyUni + sim.housing + sim.transport + sim.food;
+                const div = document.createElement('div');
+                div.className = 'sim-item-row';
+                div.onclick = (e) => { if(e.target.type !== 'checkbox') { const cb = div.querySelector('input'); cb.checked = !cb.checked; } };
+                div.innerHTML = `<input type="checkbox" class="sim-checkbox" value="${sim.id}"><div class="sim-details"><strong>${sim.uniName}</strong><span class="rating-badge" style="margin-left: 10px; font-size: 11px;">★ ${sim.rating}</span><br><small>Total: $${total.toLocaleString()}</small></div>`;
+                container.appendChild(div);
+            });
+        }
+
+        function goToComparisonTable() {
+            const checkboxes = document.querySelectorAll('.sim-checkbox:checked');
+            if(checkboxes.length < 2) return alert("Elige al menos 2 opciones.");
+            selectedForComparison = Array.from(checkboxes).map(cb => savedSimulations.find(s => s.id == cb.value));
+            renderComparisonTable();
+            navTo('compare-result');
+        }
+
+        function renderComparisonTable() {
+            const table = document.getElementById('comparison-table-body');
+            let html = `<thead><tr><th style="background:white;"></th>`;
+            selectedForComparison.forEach(sim => html += `<th>${sim.uniName}</th>`);
+            html += `</tr></thead><tbody>`;
+            html += `<tr><td style="text-align:left; font-weight:bold;">Ranking QS</td>`;
+            selectedForComparison.forEach(sim => html += `<td><span class="rating-badge">★ ${sim.rating}</span></td>`);
+            html += `</tr>`;
+            
+            // Show scholarship info
+            html += `<tr><td style="text-align:left; color:#666;">Beca Aplicada</td>`;
+            selectedForComparison.forEach(sim => html += `<td>${sim.scholarship > 0 ? sim.scholarship + '%' : 'N/A'}</td>`);
+            html += `</tr>`;
+
+            const rows = [{l: "Colegiatura", k: "monthlyUni"}, {l: "Vivienda", k: "housing"}, {l: "Transporte", k: "transport"}, {l: "Alimentos", k: "food"}];
+            rows.forEach(r => {
+                html += `<tr><td style="text-align:left; color:#666;">${r.l}</td>`;
+                selectedForComparison.forEach(sim => html += `<td>$${sim[r.k].toLocaleString()}</td>`);
+                html += `</tr>`;
+            });
+            html += `<tr style="background:#f0f7ff;"><td style="text-align:left; font-weight:bold; color:var(--primary);">TOTAL</td>`;
+            selectedForComparison.forEach(sim => {
+                const total = sim.monthlyUni + sim.housing + sim.transport + sim.food;
+                html += `<td style="font-weight:bold; color:var(--primary); font-size:18px;">$${total.toLocaleString()}</td>`;
+            });
+            html += `</tr></tbody>`;
+            table.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
